@@ -3,6 +3,7 @@ import unicodedata
 from pyUFbr.baseuf import ufbr
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
+from database import criar_tabela, salvar_vaga
 
 AREAS = {
     "1": {
@@ -188,6 +189,8 @@ def detectar_nivel(titulo):
     return "Nao identificado"
 
 # -- Execucao principal --
+criar_tabela()
+
 escolha_area = exibir_menu_areas()
 palavras_chave, areas_escolhidas = processar_areas(escolha_area)
 
@@ -204,7 +207,6 @@ if escolha_estado != "0" and escolha_estado != "":
         sigla = lista_uf[idx]
         estado_filtro = SIGLA_PARA_NOME.get(sigla, sigla)
         estado_nome = estado_filtro
-
         cidade_filtro, cidade_nome = exibir_menu_cidades(sigla)
 
 print(f"\nBuscando vagas de: {areas_escolhidas}")
@@ -222,14 +224,29 @@ for palavra in palavras_chave:
 
 resultado = list(vagas_encontradas.values())
 
+novas = 0
+ja_vistas = 0
+
 print(f"Vagas encontradas: {len(resultado)}")
 print("-" * 40)
 
 for v in resultado:
-    nivel = detectar_nivel(v["titulo"])
-    print(f"[{v['id']}] {v['titulo']}")
+    v["nivel"] = detectar_nivel(v["titulo"])
+    eh_nova = salvar_vaga(v)
+
+    if eh_nova:
+        novas += 1
+        status = "NOVA"
+    else:
+        ja_vistas += 1
+        status = "ja vista"
+
+    print(f"[{status}] [{v['id']}] {v['titulo']}")
     print(f"    Empresa: {v['empresa']}")
     print(f"    Local:   {v['cidade']}/{v['estado']}")
-    print(f"    Nivel:   {nivel}")
+    print(f"    Nivel:   {v['nivel']}")
     print(f"    Link:    {v['url']}")
     print()
+
+print("-" * 40)
+print(f"Novas: {novas} | Ja vistas: {ja_vistas}")
