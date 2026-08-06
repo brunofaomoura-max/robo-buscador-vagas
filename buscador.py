@@ -1,6 +1,8 @@
 import requests
 import unicodedata
 from pyUFbr.baseuf import ufbr
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 
 AREAS = {
     "1": {
@@ -107,14 +109,24 @@ def exibir_menu_estados():
     return escolha, lista_uf
 
 def exibir_menu_cidades(sigla_estado):
-    print(f"\nQual cidade em {SIGLA_PARA_NOME.get(sigla_estado, sigla_estado)}?\n")
     cidades = ufbr.list_cidades(sigla_estado)
-    for i, cidade in enumerate(cidades, start=1):
-        print(f"  {i}. {cidade.title()}")
-    print("\n  0. Todas as cidades")
-    print("=" * 40)
-    escolha = input("Digite o numero da cidade: ").strip()
-    return escolha, cidades
+    cidades_formatadas = [c.title() for c in cidades]
+
+    print(f"\nDigite o nome da cidade em {SIGLA_PARA_NOME.get(sigla_estado, sigla_estado)}:")
+    print("(va digitando que as opcoes aparecem, ENTER para todas)\n")
+
+    completer = WordCompleter(cidades_formatadas, ignore_case=True)
+    cidade_digitada = prompt("Cidade: ", completer=completer).strip()
+
+    if cidade_digitada == "":
+        return None, "Todas as cidades"
+
+    cidade_normalizada = normalizar(cidade_digitada)
+    for cidade in cidades_formatadas:
+        if normalizar(cidade) == cidade_normalizada:
+            return cidade, cidade
+
+    return cidade_digitada, cidade_digitada
 
 def processar_areas(escolha):
     if escolha.strip() == "0":
@@ -193,13 +205,7 @@ if escolha_estado != "0" and escolha_estado != "":
         estado_filtro = SIGLA_PARA_NOME.get(sigla, sigla)
         estado_nome = estado_filtro
 
-        escolha_cidade, lista_cidades = exibir_menu_cidades(sigla)
-
-        if escolha_cidade != "0" and escolha_cidade != "":
-            idx_cidade = int(escolha_cidade) - 1
-            if 0 <= idx_cidade < len(lista_cidades):
-                cidade_filtro = lista_cidades[idx_cidade].title()
-                cidade_nome = cidade_filtro
+        cidade_filtro, cidade_nome = exibir_menu_cidades(sigla)
 
 print(f"\nBuscando vagas de: {areas_escolhidas}")
 print(f"Estado: {estado_nome}")
