@@ -1,145 +1,61 @@
-# Robô Buscador de Vagas
+# Robô Buscador de Vagas de TI
 
-Aplicação desenvolvida em Python para automatizar a busca de vagas de Tecnologia da Informação utilizando a API pública da Gupy. O robô permite pesquisar oportunidades por área de atuação, estado e cidade, realizando automaticamente a consulta, filtragem, organização e exibição dos resultados.
+Robô em Python que busca vagas de TI e desenvolvimento na API pública da Gupy, com filtro interativo por área, estado e cidade, detecção automática de nível, salvamento em banco SQLite e abertura automática de vagas novas no navegador via Selenium.
 
-O projeto foi desenvolvido com foco na aplicação prática de conceitos de automação de processos (RPA), consumo de APIs REST e processamento de dados, simulando um fluxo de automação semelhante ao encontrado em aplicações corporativas.
+Fiz esse projeto pra treinar automação com Python aplicando conceitos de RPA — consumir uma API real, processar e filtrar dados automaticamente, e estruturar um robô que executa um processo completo do início ao fim sem intervenção manual.
 
----
+## Como Rodar
 
-## Objetivo
-
-O principal objetivo deste projeto é automatizar uma tarefa repetitiva: pesquisar vagas de emprego de acordo com critérios específicos.
-
-Durante o desenvolvimento foram aplicados conceitos importantes como:
-
-- Consumo de APIs REST
-- Automação de processos (RPA)
-- Manipulação de dados JSON
-- Filtragem e processamento de informações
-- Normalização de textos
-- Interface interativa para terminal
-- Organização de código em Python
-
----
-
-## Demonstração
-
-Fluxo simplificado da aplicação:
-
-```text
-Usuário
-   │
-   ▼
-Seleciona uma ou mais áreas de TI
-   │
-   ▼
-Seleciona o estado
-   │
-   ▼
-Seleciona a cidade
-   │
-   ▼
-Consulta a API pública da Gupy
-   │
-   ▼
-Recebe os resultados
-   │
-   ├── Remove vagas duplicadas
-   ├── Filtra por localização
-   ├── Detecta o nível da vaga
-   │
-   ▼
-Exibe as vagas encontradas
+```bash
+git clone https://github.com/brunofaomoura-max/robo-buscador-vagas.git
+cd robo-buscador-vagas
+pip install -r requirements.txt
+python buscador.py
 ```
 
----
+O robô vai fazer perguntas interativas no terminal: qual área de TI buscar, em qual estado e cidade. A busca é feita diretamente na API da Gupy e os resultados aparecem no terminal com empresa, localização, nível e link direto da vaga. Vagas novas são salvas no banco e abertas automaticamente no Chrome.
 
-# Funcionalidades
+## O que ele faz
 
-- Consulta automática à API pública da Gupy
-- Busca de vagas por múltiplas áreas da Tecnologia da Informação
-- Seleção simultânea de diferentes áreas
-- Filtragem por estado
-- Filtragem por cidade
-- Autocomplete para seleção de cidades
-- Remoção automática de vagas duplicadas
-- Identificação automática do nível da vaga
-- Normalização de textos para comparação sem diferenças de acentuação
-- Exibição organizada das informações no terminal
-- Link direto para a vaga original
+1. Exibe um menu com 11 áreas de TI para o usuário escolher (pode combinar várias)
+2. Pergunta o estado usando a lista oficial de UFs brasileiras
+3. Pergunta a cidade com busca dinâmica — é só digitar as primeiras letras e as opções aparecem automaticamente
+4. Busca as vagas direto na API pública da Gupy usando as palavras-chave de cada área
+5. Filtra os resultados por estado e cidade
+6. Remove vagas duplicadas automaticamente pelo ID
+7. Detecta o nível da vaga pelo título (Estágio, Junior, Pleno, Sênior)
+8. Salva todas as vagas encontradas no banco SQLite
+9. Detecta quais vagas são novas em relação às execuções anteriores
+10. Exibe os resultados com empresa, localização, nível e link direto
+11. Pergunta se deseja abrir as vagas novas automaticamente no Chrome via Selenium
 
----
-
-# Como Funciona
-
-1. O usuário seleciona uma ou mais áreas de atuação.
-2. O sistema solicita o estado desejado.
-3. A cidade é escolhida utilizando busca dinâmica com autocomplete.
-4. O robô consulta a API pública da Gupy para cada área selecionada.
-5. Todos os resultados são processados.
-6. Registros duplicados são removidos automaticamente.
-7. O nível da vaga é identificado analisando o título da oportunidade.
-8. Apenas as vagas compatíveis com os filtros informados são exibidas.
-
----
-
-# Arquitetura
-
-```text
-                 Usuário
-                     │
-                     ▼
-          Interface via Terminal
-                     │
-                     ▼
-        Entrada dos filtros de busca
-                     │
-                     ▼
-          Consulta à API da Gupy
-                     │
-                     ▼
-        Processamento dos resultados
-                     │
-        ┌────────────┼────────────┐
-        │            │            │
-        ▼            ▼            ▼
- Normalização   Deduplicação   Classificação
- de textos       das vagas      por nível
-        │            │            │
-        └────────────┼────────────┘
-                     ▼
-           Exibição dos resultados
-```
-
----
-
-# Tecnologias Utilizadas
+## Tecnologias
 
 | Tecnologia | Finalidade |
-|------------|------------|
+|---|---|
 | Python 3 | Linguagem principal |
-| Requests | Consumo da API REST |
-| Prompt Toolkit | Interface interativa com autocomplete |
-| pyUFBr | Estados e cidades brasileiras |
-| Unicodedata | Normalização de textos |
-| API Pública da Gupy | Fonte das vagas |
+| Requests | Requisições HTTP para a API REST da Gupy |
+| Prompt Toolkit | Interface interativa com autocomplete no terminal |
+| pyUFBr | Lista oficial de estados e cidades brasileiras |
+| Unicodedata | Normalização de textos para filtros sem diferença de acentuação |
+| SQLite3 | Banco local para salvar vagas e detectar novidades |
+| Selenium | Abre vagas novas automaticamente no Chrome |
+| WebDriver Manager | Gerencia a instalação do ChromeDriver automaticamente |
+| API Pública da Gupy | Fonte dos dados de vagas |
 
----
+## Estrutura do Projeto
 
-# Estrutura do Projeto
-
-```text
 robo-buscador-vagas/
 │
-├── buscador.py
-├── requirements.txt
+├── buscador.py # Robô principal — busca, filtra e exibe
+├── database.py # Lógica SQLite — salva e detecta vagas novas
+├── selenium_opener.py # Abre vagas novas no Chrome automaticamente
+├── requirements.txt # Dependências do projeto
 ├── .gitignore
 └── README.md
-```
 
----
 
-# Instalação
+## Instalação
 
 Clone o repositório.
 
@@ -159,9 +75,7 @@ Instale as dependências.
 pip install -r requirements.txt
 ```
 
----
-
-# Execução
+## Execução
 
 Execute o programa.
 
@@ -170,97 +84,76 @@ python buscador.py
 ```
 
 Durante a execução serão solicitados:
-
-- Área de atuação
+- Área(s) de TI desejada(s)
 - Estado
 - Cidade
 
-Após a definição dos filtros, o robô realiza automaticamente a consulta na API e apresenta as vagas encontradas.
+Após definir os filtros, o robô consulta a API, salva as vagas novas no banco e pergunta se deseja abri-las no Chrome.
 
----
+## Exemplo de Saída
+ROBO BUSCADOR DE VAGAS DE TI
 
-# Exemplo de Saída
+Que area voce quer buscar?
 
-```text
-==================================================
+RPA / Automacao
+Dev Fullstack
+...
+Todas as areas
+========================================
+Digite os numeros separados por virgula: 1
 
-Empresa:
-Empresa Exemplo
+Qual estado voce quer buscar?
+18. PR - Paraná
+...
+Digite o numero do estado: 18
 
-Cargo:
-Desenvolvedor Backend Python Pleno
+Digite o nome da cidade em Paraná:
+(va digitando que as opcoes aparecem, ENTER para todas)
+Cidade: Curitiba
 
-Nível:
-Pleno
+Buscando vagas de: RPA / Automacao
+Estado: Paraná
+Cidade: Curitiba
+Aguarde...
 
-Localização:
-São Paulo/SP
+Vagas encontradas: 1
 
-Link:
-https://portal.gupy.io/jobs/xxxxxxxx
+[NOVA] [10582233] Estágio em Automação
+Empresa: Centro de Excelência Votorantim
+Local: Curitiba/Paraná
+Nivel: Estagio
+Link: https://votorantimcoe.gupy.io/...
 
-==================================================
-```
+Novas: 1 | Ja vistas: 0
 
----
+Deseja abrir as 1 vaga(s) nova(s) no navegador? (s/n): s
+Abrindo 1 vaga(s) no navegador...
+Pressione ENTER quando terminar de ver as vagas...
 
-# Conceitos Aplicados
 
-Este projeto utiliza diversos conceitos importantes do desenvolvimento de software:
+## Conceitos Aplicados
 
 - Consumo de APIs REST
 - Automação de Processos (RPA)
-- Manipulação de JSON
-- Processamento de dados
-- Filtragem de informações
+- Manipulação de dados JSON
+- Filtragem e processamento de informações
 - Normalização de textos
-- Estruturas de dados
-- Interface interativa para terminal
-- Deduplicação de registros
-- Organização de código
+- Gerenciamento de banco de dados local com SQLite
+- Detecção de registros duplicados
+- Interface interativa no terminal com autocomplete
+- Automação de navegador com Selenium
 
----
+## Possíveis Melhorias Futuras
 
-# Decisões de Implementação
+- [ ] Paginação para buscar todas as vagas disponíveis na API
+- [ ] Exportação para CSV e Excel
+- [ ] Alerta de novas vagas por e-mail
+- [ ] Dashboard web para visualizar vagas salvas
+- [ ] Containerização com Docker
+- [ ] Testes automatizados
+- [ ] Pipeline de CI/CD
 
-Algumas decisões foram adotadas durante o desenvolvimento para tornar a aplicação mais robusta.
+## Autor
 
-- Utilização da API pública da Gupy como fonte oficial dos dados.
-- Remoção de registros duplicados utilizando o identificador único da vaga.
-- Normalização de textos para evitar inconsistências causadas por acentos.
-- Classificação automática do nível da vaga com base no título informado pela empresa.
-- Interface totalmente baseada em terminal para reduzir dependências e facilitar a execução.
-
----
-
-# Melhorias Futuras
-
-Algumas funcionalidades que podem ser incorporadas ao projeto:
-
-- Paginação automática para recuperar todas as vagas disponíveis.
-- Exportação dos resultados para CSV.
-- Exportação para Excel.
-- Banco de dados SQLite para armazenamento das vagas.
-- Comparação entre execuções para identificar novas oportunidades.
-- Notificações por e-mail.
-- Interface gráfica.
-- Dashboard Web.
-- Containerização utilizando Docker.
-- Testes automatizados.
-- Pipeline de Integração Contínua (CI/CD).
-
----
-
-# Aprendizados
-
-O desenvolvimento deste projeto proporcionou experiência prática na construção de uma automação completa utilizando Python.
-
-Além do consumo de uma API pública, foram explorados conceitos relacionados ao processamento de dados, integração entre sistemas, automação de tarefas, tratamento de informações e desenvolvimento de aplicações orientadas à linha de comando.
-
-O projeto também reforçou a importância da organização do código, da separação de responsabilidades e da criação de soluções reutilizáveis para automatizar tarefas repetitivas.
-
----
-
-# Licença
-
-Este projeto foi desenvolvido para fins de estudo e composição de portfólio.
+Bruno — estudante de tecnologia em transição para automação e RPA.
+Portfólio: [github.com/brunofaomoura-max](https://github.com/brunofaomoura-max
