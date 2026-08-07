@@ -4,6 +4,7 @@ from pyUFbr.baseuf import ufbr
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 from database import criar_tabela, salvar_vaga
+from selenium_opener import abrir_vagas_no_navegador
 
 AREAS = {
     "1": {
@@ -226,6 +227,7 @@ resultado = list(vagas_encontradas.values())
 
 novas = 0
 ja_vistas = 0
+lista_novas = []
 
 print(f"Vagas encontradas: {len(resultado)}")
 print("-" * 40)
@@ -237,6 +239,7 @@ for v in resultado:
     if eh_nova:
         novas += 1
         status = "NOVA"
+        lista_novas.append(v)
     else:
         ja_vistas += 1
         status = "ja vista"
@@ -250,3 +253,9 @@ for v in resultado:
 
 print("-" * 40)
 print(f"Novas: {novas} | Ja vistas: {ja_vistas}")
+
+# -- Selenium --
+if novas > 0:
+    resposta = input(f"\nDeseja abrir as {novas} vaga(s) nova(s) no navegador? (s/n): ").strip().lower()
+    if resposta == "s":
+        abrir_vagas_no_navegador(lista_novas)
