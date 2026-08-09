@@ -157,8 +157,24 @@ def buscar_por_palavra(palavra_chave, estado_filtro=None, cidade_filtro=None, li
         "limit": limit,
         "offset": 0
     }
-    resposta = requests.get(url, params=params)
-    dados = resposta.json()
+
+    try:
+        resposta = requests.get(url, params=params, timeout=10)
+        resposta.raise_for_status()
+        dados = resposta.json()
+    except requests.exceptions.ConnectionError:
+        print(f"Erro de conexao ao buscar '{palavra_chave}'. Verifique sua internet.")
+        return []
+    except requests.exceptions.Timeout:
+        print(f"A API demorou demais ao buscar '{palavra_chave}'. Tente novamente.")
+        return []
+    except requests.exceptions.HTTPError as e:
+        print(f"Erro HTTP ao buscar '{palavra_chave}': {e}")
+        return []
+    except Exception as e:
+        print(f"Erro inesperado ao buscar '{palavra_chave}': {e}")
+        return []
+
     vagas = dados.get("data", [])
 
     if estado_filtro:
@@ -195,7 +211,11 @@ criar_tabela()
 escolha_area = exibir_menu_areas()
 palavras_chave, areas_escolhidas = processar_areas(escolha_area)
 
-escolha_estado, lista_uf = exibir_menu_estados()
+try:
+    escolha_estado, lista_uf = exibir_menu_estados()
+except Exception as e:
+    print(f"Erro ao carregar estados: {e}")
+    exit()
 
 estado_filtro = None
 cidade_filtro = None
@@ -203,12 +223,17 @@ estado_nome = "Todos os estados"
 cidade_nome = "Todas as cidades"
 
 if escolha_estado != "0" and escolha_estado != "":
-    idx = int(escolha_estado) - 1
-    if 0 <= idx < len(lista_uf):
-        sigla = lista_uf[idx]
-        estado_filtro = SIGLA_PARA_NOME.get(sigla, sigla)
-        estado_nome = estado_filtro
-        cidade_filtro, cidade_nome = exibir_menu_cidades(sigla)
+    try:
+        idx = int(escolha_estado) - 1
+        if 0 <= idx < len(lista_uf):
+            sigla = lista_uf[idx]
+            estado_filtro = SIGLA_PARA_NOME.get(sigla, sigla)
+            estado_nome = estado_filtro
+            cidade_filtro, cidade_nome = exibir_menu_cidades(sigla)
+        else:
+            print("Numero de estado invalido. Buscando em todos os estados.")
+    except ValueError:
+        print("Entrada invalida. Digite apenas numeros. Buscando em todos os estados.")
 
 print(f"\nBuscando vagas de: {areas_escolhidas}")
 print(f"Estado: {estado_nome}")
