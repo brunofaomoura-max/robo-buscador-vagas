@@ -46,14 +46,18 @@ O robô vai fazer perguntas interativas no terminal: qual área de TI buscar, em
 ## Estrutura do Projeto
 
 robo-buscador-vagas/
+## Estrutura do Projeto
+
+```
+robo-buscador-vagas/
 │
-├── buscador.py # Robô principal — busca, filtra e exibe
-├── database.py # Lógica SQLite — salva e detecta vagas novas
-├── selenium_opener.py # Abre vagas novas no Chrome automaticamente
-├── requirements.txt # Dependências do projeto
+├── buscador.py          # Robô principal — busca, filtra e exibe
+├── database.py          # Lógica SQLite — salva e detecta vagas novas
+├── selenium_opener.py   # Abre vagas novas no Chrome automaticamente
+├── requirements.txt     # Dependências do projeto
 ├── .gitignore
 └── README.md
-
+```
 
 ## Instalação
 
