@@ -53,8 +53,20 @@ AREAS = {
         "palavras_chave": ["machine learning", "inteligencia artificial", "inteligência artificial", "nlp", "deep learning", "llm"]
     },
     "12": {
-        "nome": "Estagio / Trainee em TI",
-        "palavras_chave": ["estagio ti", "estágio ti", "estagiario ti", "estagiário ti", "estagio desenvolvimento", "estagio tecnologia", "programa de estagio", "programa de estágio", "trainee ti", "estagio engenharia de software", "estagio"]
+        "nome": "Estagio / Trainee (Engenharia de Software & TI)",
+        "palavras_chave": [
+            "estagio engenharia de software",
+            "estagio desenvolvimento",
+            "estagio java",
+            "estagio c#",
+            "estagio python",
+            "estagio react",
+            "estagiario ti",
+            "estágio ti",
+            "programa de estagio",
+            "programa de talentos",
+            "trainee tech"
+        ]
     }
 }
 
@@ -155,7 +167,7 @@ def processar_areas(escolha):
 
     return palavras, ", ".join(nomes)
 
-def buscar_por_palavra(palavra_chave, estado_filtro=None, cidade_filtro=None, limit=50):
+def buscar_por_palavra(palavra_chave, estado_filtro=None, cidade_filtro=None, limit=100):
     url = "https://employability-portal.gupy.io/api/v1/jobs"
     vagas_totais = []
     offset = 0
@@ -200,7 +212,9 @@ def buscar_por_palavra(palavra_chave, estado_filtro=None, cidade_filtro=None, li
         
         time.sleep(1)
 
-        if offset >= 1000:
+        # O limite antigo de 1000 estava cortando os resultados pela metade. 
+        # Aumentamos para 4000 para pescar as vagas locais escondidas no fundo.
+        if offset >= 4000:
             break
 
     return vagas_totais
