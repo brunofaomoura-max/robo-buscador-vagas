@@ -1,3 +1,4 @@
+import time
 import requests
 import unicodedata
 from pyUFbr.baseuf import ufbr
@@ -152,38 +153,53 @@ def processar_areas(escolha):
 
 def buscar_por_palavra(palavra_chave, estado_filtro=None, cidade_filtro=None, limit=50):
     url = "https://employability-portal.gupy.io/api/v1/jobs"
-    params = {
-        "jobName": palavra_chave,
-        "limit": limit,
-        "offset": 0
-    }
+    vagas_totais = []
+    offset = 0
 
-    try:
-        resposta = requests.get(url, params=params, timeout=10)
-        resposta.raise_for_status()
-        dados = resposta.json()
-    except requests.exceptions.ConnectionError:
-        print(f"Erro de conexao ao buscar '{palavra_chave}'. Verifique sua internet.")
-        return []
-    except requests.exceptions.Timeout:
-        print(f"A API demorou demais ao buscar '{palavra_chave}'. Tente novamente.")
-        return []
-    except requests.exceptions.HTTPError as e:
-        print(f"Erro HTTP ao buscar '{palavra_chave}': {e}")
-        return []
-    except Exception as e:
-        print(f"Erro inesperado ao buscar '{palavra_chave}': {e}")
-        return []
+    while True:
+        params = {
+            "jobName": palavra_chave,
+            "limit": limit,
+            "offset": offset
+        }
 
-    vagas = dados.get("data", [])
+        try:
+            resposta = requests.get(url, params=params, timeout=10)
+            resposta.raise_for_status()
+            dados = resposta.json()
+        except requests.exceptions.ConnectionError:
+            print(f"Erro de conexao ao buscar '{palavra_chave}'. Verifique sua internet.")
+            break
+        except requests.exceptions.Timeout:
+            print(f"A API demorou demais ao buscar '{palavra_chave}'. Tente novamente.")
+            break
+        except requests.exceptions.HTTPError as e:
+            print(f"Erro HTTP ao buscar '{palavra_chave}' (Offset {offset}): {e}")
+            break
+        except Exception as e:
+            print(f"Erro inesperado ao buscar '{palavra_chave}': {e}")
+            break
 
-    if estado_filtro:
-        vagas = [v for v in vagas if normalizar(estado_filtro) in normalizar(v.get("state", ""))]
+        vagas_pagina = dados.get("data", [])
 
-    if cidade_filtro:
-        vagas = [v for v in vagas if normalizar(cidade_filtro) in normalizar(v.get("city", ""))]
+        if not vagas_pagina:
+            break
 
-    return vagas
+        if estado_filtro:
+            vagas_pagina = [v for v in vagas_pagina if normalizar(estado_filtro) in normalizar(v.get("state", ""))]
+
+        if cidade_filtro:
+            vagas_pagina = [v for v in vagas_pagina if normalizar(cidade_filtro) in normalizar(v.get("city", ""))]
+
+        vagas_totais.extend(vagas_pagina)
+        offset += limit
+        
+        time.sleep(1)
+
+        if offset >= 1000:
+            break
+
+    return vagas_totais
 
 def extrair_campos(vaga):
     return {
@@ -205,7 +221,7 @@ def detectar_nivel(titulo):
             return display
     return "Nao identificado"
 
-# -- Execucao principal --
+
 criar_tabela()
 
 escolha_area = exibir_menu_areas()
@@ -279,7 +295,6 @@ for v in resultado:
 print("-" * 40)
 print(f"Novas: {novas} | Ja vistas: {ja_vistas}")
 
-# -- Selenium --
 if novas > 0:
     resposta = input(f"\nDeseja abrir as {novas} vaga(s) nova(s) no navegador? (s/n): ").strip().lower()
     if resposta == "s":
