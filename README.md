@@ -21,13 +21,14 @@ O robô vai fazer perguntas interativas no terminal: qual área de TI buscar, em
 2. Pergunta o estado usando a lista oficial de UFs brasileiras
 3. Pergunta a cidade com busca dinâmica — é só digitar as primeiras letras e as opções aparecem automaticamente
 4. Busca as vagas direto na API pública da Gupy usando as palavras-chave de cada área
-5. Filtra os resultados por estado e cidade
-6. Remove vagas duplicadas automaticamente pelo ID
-7. Detecta o nível da vaga pelo título (Estágio, Junior, Pleno, Sênior)
-8. Salva todas as vagas encontradas no banco SQLite
-9. Detecta quais vagas são novas em relação às execuções anteriores
-10. Exibe os resultados com empresa, localização, nível e link direto
-11. Pergunta se deseja abrir as vagas novas automaticamente no Chrome via Selenium
+5. Percorre todas as páginas de resultados automaticamente via paginação
+6. Filtra os resultados por estado e cidade
+7. Remove vagas duplicadas automaticamente pelo ID
+8. Detecta o nível da vaga pelo título (Estágio, Junior, Pleno, Sênior)
+9. Salva todas as vagas encontradas no banco SQLite
+10. Detecta quais vagas são novas em relação às execuções anteriores
+11. Exibe os resultados com empresa, localização, nível e link direto
+12. Pergunta se deseja abrir as vagas novas automaticamente no Chrome via Selenium
 
 ## Tecnologias
 
@@ -41,23 +42,19 @@ O robô vai fazer perguntas interativas no terminal: qual área de TI buscar, em
 | SQLite3 | Banco local para salvar vagas e detectar novidades |
 | Selenium | Abre vagas novas automaticamente no Chrome |
 | WebDriver Manager | Gerencia a instalação do ChromeDriver automaticamente |
+| Flask | API REST para integração com dashboards externos |
 | API Pública da Gupy | Fonte dos dados de vagas |
 
 ## Estrutura do Projeto
-
-robo-buscador-vagas/
-## Estrutura do Projeto
-
-```
 robo-buscador-vagas/
 │
-├── buscador.py          # Robô principal — busca, filtra e exibe
-├── database.py          # Lógica SQLite — salva e detecta vagas novas
-├── selenium_opener.py   # Abre vagas novas no Chrome automaticamente
-├── requirements.txt     # Dependências do projeto
+├── buscador.py # Robô principal — busca, filtra e exibe
+├── database.py # Lógica SQLite — salva e detecta vagas novas
+├── selenium_opener.py # Abre vagas novas no Chrome automaticamente
+├── api.py # API Flask para consumo externo dos dados
+├── requirements.txt # Dependências do projeto
 ├── .gitignore
 └── README.md
-```
 
 ## Instalação
 
@@ -88,11 +85,12 @@ python buscador.py
 ```
 
 Durante a execução serão solicitados:
+
 - Área(s) de TI desejada(s)
 - Estado
 - Cidade
 
-Após definir os filtros, o robô consulta a API, salva as vagas novas no banco e pergunta se deseja abri-las no Chrome.
+Após definir os filtros, o robô consulta a API, percorre todas as páginas disponíveis, salva as vagas novas no banco e pergunta se deseja abri-las no Chrome.
 
 ## Exemplo de Saída
 ROBO BUSCADOR DE VAGAS DE TI
@@ -134,14 +132,14 @@ Deseja abrir as 1 vaga(s) nova(s) no navegador? (s/n): s
 Abrindo 1 vaga(s) no navegador...
 Pressione ENTER quando terminar de ver as vagas...
 
-
 ## Conceitos Aplicados
 
-- Consumo de APIs REST
+- Consumo de APIs REST com paginação automática
 - Automação de Processos (RPA)
 - Manipulação de dados JSON
 - Filtragem e processamento de informações
 - Normalização de textos
+- Tratamento de erros com try/except
 - Gerenciamento de banco de dados local com SQLite
 - Detecção de registros duplicados
 - Interface interativa no terminal com autocomplete
@@ -149,7 +147,6 @@ Pressione ENTER quando terminar de ver as vagas...
 
 ## Possíveis Melhorias Futuras
 
-- [ ] Paginação para buscar todas as vagas disponíveis na API
 - [ ] Exportação para CSV e Excel
 - [ ] Alerta de novas vagas por e-mail
 - [ ] Dashboard web para visualizar vagas salvas
@@ -160,4 +157,4 @@ Pressione ENTER quando terminar de ver as vagas...
 ## Autor
 
 Bruno — estudante de tecnologia em transição para automação e RPA.
-Portfólio: [github.com/brunofaomoura-max](https://github.com/brunofaomoura-max
+Portfólio: [github.com/brunofaomoura-max](https://github.com/brunofaomoura-max)
