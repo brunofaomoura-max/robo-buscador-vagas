@@ -1,4 +1,3 @@
-import time
 import requests
 import unicodedata
 from pyUFbr.baseuf import ufbr
@@ -51,22 +50,6 @@ AREAS = {
     "11": {
         "nome": "IA / Machine Learning",
         "palavras_chave": ["machine learning", "inteligencia artificial", "inteligência artificial", "nlp", "deep learning", "llm"]
-    },
-    "12": {
-        "nome": "Estagio / Trainee (Engenharia de Software & TI)",
-        "palavras_chave": [
-            "estagio engenharia de software",
-            "estagio desenvolvimento",
-            "estagio java",
-            "estagio c#",
-            "estagio python",
-            "estagio react",
-            "estagiario ti",
-            "estágio ti",
-            "programa de estagio",
-            "programa de talentos",
-            "trainee tech"
-        ]
     }
 }
 
@@ -113,7 +96,7 @@ def exibir_menu_areas():
         print(f"  {numero}. {area['nome']}")
     print("\n  0. Todas as areas")
     print("=" * 40)
-    escolha = input("Digite os numeros separados por virgula (ex: 1, 2, 12): ")
+    escolha = input("Digite os numeros separados por virgula (ex: 1, 2, 5): ")
     return escolha
 
 def exibir_menu_estados():
@@ -167,9 +150,9 @@ def processar_areas(escolha):
 
     return palavras, ", ".join(nomes)
 
-def buscar_por_palavra(palavra_chave, estado_filtro=None, cidade_filtro=None, limit=100):
+def buscar_por_palavra(palavra_chave, estado_filtro=None, cidade_filtro=None, limit=50):
     url = "https://employability-portal.gupy.io/api/v1/jobs"
-    vagas_totais = []
+    todas_vagas = []
     offset = 0
 
     while True:
@@ -190,34 +173,27 @@ def buscar_por_palavra(palavra_chave, estado_filtro=None, cidade_filtro=None, li
             print(f"A API demorou demais ao buscar '{palavra_chave}'. Tente novamente.")
             break
         except requests.exceptions.HTTPError as e:
-            print(f"Erro HTTP ao buscar '{palavra_chave}' (Offset {offset}): {e}")
+            print(f"Erro HTTP ao buscar '{palavra_chave}': {e}")
             break
         except Exception as e:
             print(f"Erro inesperado ao buscar '{palavra_chave}': {e}")
             break
 
-        vagas_pagina = dados.get("data", [])
+        vagas = dados.get("data", [])
+        total = dados["pagination"]["total"]
+        todas_vagas.extend(vagas)
 
-        if not vagas_pagina:
-            break
-
-        if estado_filtro:
-            vagas_pagina = [v for v in vagas_pagina if normalizar(estado_filtro) in normalizar(v.get("state", ""))]
-
-        if cidade_filtro:
-            vagas_pagina = [v for v in vagas_pagina if normalizar(cidade_filtro) in normalizar(v.get("city", ""))]
-
-        vagas_totais.extend(vagas_pagina)
         offset += limit
-        
-        time.sleep(1)
-
-        # O limite antigo de 1000 estava cortando os resultados pela metade. 
-        # Aumentamos para 4000 para pescar as vagas locais escondidas no fundo.
-        if offset >= 4000:
+        if offset >= total:
             break
 
-    return vagas_totais
+    if estado_filtro:
+        todas_vagas = [v for v in todas_vagas if normalizar(estado_filtro) in normalizar(v.get("state", ""))]
+
+    if cidade_filtro:
+        todas_vagas = [v for v in todas_vagas if normalizar(cidade_filtro) in normalizar(v.get("city", ""))]
+
+    return todas_vagas
 
 def extrair_campos(vaga):
     return {
@@ -239,7 +215,7 @@ def detectar_nivel(titulo):
             return display
     return "Nao identificado"
 
-
+# -- Execucao principal --
 criar_tabela()
 
 escolha_area = exibir_menu_areas()
@@ -313,6 +289,7 @@ for v in resultado:
 print("-" * 40)
 print(f"Novas: {novas} | Ja vistas: {ja_vistas}")
 
+# -- Selenium --
 if novas > 0:
     resposta = input(f"\nDeseja abrir as {novas} vaga(s) nova(s) no navegador? (s/n): ").strip().lower()
     if resposta == "s":
