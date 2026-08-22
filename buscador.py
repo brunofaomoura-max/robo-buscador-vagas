@@ -51,6 +51,10 @@ AREAS = {
     "11": {
         "nome": "IA / Machine Learning",
         "palavras_chave": ["machine learning", "inteligencia artificial", "inteligência artificial", "nlp", "deep learning", "llm"]
+    },
+    "12": {
+        "nome": "Estagio / Trainee em TI",
+        "palavras_chave": ["estagio ti", "estágio ti", "estagiario ti", "estagiário ti", "estagio desenvolvimento", "estagio tecnologia", "programa de estagio", "programa de estágio", "trainee ti", "estagio engenharia de software", "estagio"]
     }
 }
 
@@ -97,7 +101,7 @@ def exibir_menu_areas():
         print(f"  {numero}. {area['nome']}")
     print("\n  0. Todas as areas")
     print("=" * 40)
-    escolha = input("Digite os numeros separados por virgula (ex: 1, 2, 5): ")
+    escolha = input("Digite os numeros separados por virgula (ex: 1, 2, 12): ")
     return escolha
 
 def exibir_menu_estados():
